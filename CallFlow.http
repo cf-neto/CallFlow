@@ -1,0 +1,6 @@
+@CallFlow_HostAddress = http://localhost:5206
+
+GET {{CallFlow_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
