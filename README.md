@@ -1,4 +1,4 @@
-# 📒 CallFlow - Sistema de Chamados Pessoal
+# 📒 CallFlow - Sistema de Chamados - Em Desenvolvimento
 
 **CallFlow** é um projeto pessoal desenvolvido em **ASP.NET Core**, inspirado no VerdanaDesk.  
 Ele permite gerenciar chamados e usuários de forma simples, controlando permissões, grupos e status de chamados.
