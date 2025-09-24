@@ -34,3 +34,4 @@ C:\Users\Carlosfdsn\Downloads\CallFlow\CallFlow\obj\Debug\net9.0\refint\CallFlow
 C:\Users\Carlosfdsn\Downloads\CallFlow\CallFlow\obj\Debug\net9.0\CallFlow.pdb
 C:\Users\Carlosfdsn\Downloads\CallFlow\CallFlow\obj\Debug\net9.0\CallFlow.genruntimeconfig.cache
 C:\Users\Carlosfdsn\Downloads\CallFlow\CallFlow\obj\Debug\net9.0\ref\CallFlow.dll
+C:\Users\Carlosfdsn\Downloads\CallFlow\CallFlow\obj\Debug\net9.0\CallFlow.sourcelink.json

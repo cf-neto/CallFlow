@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CallFlow")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ee17ec4a52a1b69f59dac19faa4cffc7c201ffbf")]
 [assembly: System.Reflection.AssemblyProductAttribute("CallFlow")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CallFlow")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
