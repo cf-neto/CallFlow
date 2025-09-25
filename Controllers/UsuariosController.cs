@@ -41,6 +41,19 @@ namespace CallFlow.Controllers
 
             return Ok(usuario);
         }
+        
+        // GET api/usuari1#80FF00o/fernandaSeta
+        [HttpGet("email/{email}")]
+        public ActionResult<Usuario> GetUsuarioByEmail(string email, [FromQuery] int adminId)
+        {
+            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
+            if (admin == null) return Unauthorized("Apenas admins podem visualizar usuários.");
+
+            var usuario = Usuarios.FirstOrDefault(u => u.Email== email);
+            if (usuario == null) return NotFound("Usuário não encontrado.");
+
+            return Ok(usuario);
+        }
 
 
         // POST api/usuario
@@ -74,11 +87,31 @@ namespace CallFlow.Controllers
 
             return NoContent();
         }
+        
+        
+        // PUT api/usuario/{email}
+        [HttpPut("email")]
+        public ActionResult Update([FromQuery] string email, [FromQuery] int adminId, [FromBody] Usuario usuarioAtualizado)
+        {
+            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
+            if (admin == null) return Unauthorized("Apenas admins podem editar usuários");
+
+            var usuario = Usuarios.FirstOrDefault(u => u.Email == email);
+            if (usuario == null) return NotFound("Usuário não encontrado");
+
+            usuario.Nome = usuarioAtualizado.Nome;
+            usuario.Email = usuarioAtualizado.Email;
+            usuario.Senha = usuarioAtualizado.Senha;
+            usuario.Grupos = usuarioAtualizado.Grupos;
+            usuario.Permissao = usuarioAtualizado.Permissao;
+
+            return NoContent();
+        }
 
 
         // DELETE api/usuario/{id}
-        [HttpDelete]
-        public ActionResult Delete(int id, [FromQuery] int adminId)
+        [HttpDelete("{id}")]
+        public ActionResult Delete([FromRoute] int id, [FromQuery] int adminId)
         {
             var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
             if (admin == null) return Unauthorized("Apenas admins podem deletar usuários");
@@ -90,7 +123,22 @@ namespace CallFlow.Controllers
 
             return NoContent();
         }
+        
+        
+        // DELETE api/usuario/{email}
+        [HttpDelete("email")]
+        public ActionResult Delete([FromQuery] string email, [FromQuery] int adminId)
+        {
+            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
+            if (admin == null) return Unauthorized("Apenas admins podem deletar usuários");
 
+            var usuario = Usuarios.FirstOrDefault(u => u.Email== email);
+            if (usuario == null) return NotFound("Usuário não encontrado");
+
+            Usuarios.Remove(usuario);
+
+            return NoContent();
+        }
 
 
         // POST api/usuario/{id}/adicionar-grupo?adminId=1
@@ -115,7 +163,7 @@ namespace CallFlow.Controllers
 
 
         // DELETE api/usuario/{id}/remover-grupo?adminId=1
-        [HttpDelete("{id}/adicionar-grupo")]
+        [HttpDelete("{id}/remover-grupo")]
         public ActionResult RemoverGrupo(int id, [FromQuery] int adminId, [FromBody] string grupo)
         {
             var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
