@@ -45,24 +45,29 @@ CallFlow/
 ---
 ## 🔗 Endpoints da API
 
-### Chamados
+# Endpoints da API
 
-| Método | Endpoint                  | Descrição                                   |
-|--------|---------------------------|--------------------------------------------|
-| GET    | /api/chamado?usuarioId=1  | Lista chamados visíveis para um usuário    |
-| GET    | /api/chamado/{id}         | Consulta um chamado específico pelo ID     |
-| POST   | /api/chamado              | Cria um novo chamado                        |
-| PUT    | /api/chamado/{id}         | Atualiza um chamado existente              |
-| DELETE | /api/chamado/{id}         | Deleta um chamado                           |
+## Chamados
 
-### Usuários
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/chamado?usuarioId=1` | Lista chamados visíveis para um usuário |
+| GET | `/api/chamado/{id}` | Consulta um chamado específico pelo ID |
+| POST | `/api/chamado` | Cria um novo chamado |
+| PUT | `/api/chamado/{id}` | Atualiza um chamado existente |
+| DELETE | `/api/chamado/{id}` | Deleta um chamado |
 
-| Método | Endpoint                                           | Descrição                                  |
-|--------|---------------------------------------------------|-------------------------------------------|
-| GET    | /api/usuario?adminId=2                            | Lista todos os usuários (apenas admin)    |
-| GET    | /api/usuario/{id}?adminId=2                      | Consulta usuário específico (admin)       |
-| POST   | /api/usuario?adminId=2                            | Cria um novo usuário (admin)              |
-| PUT    | /api/usuario/{id}?adminId=2                      | Atualiza um usuário existente (admin)     |
-| DELETE | /api/usuario?id=3&adminId=2                      | Remove um usuário (admin)                 |
-| POST   | /api/usuario/{id}/adicionar-grupo?adminId=2     | Adiciona um grupo ao usuário (admin)      |
-| DELETE | /api/usuario/{id}/remover-grupo?adminId=2       | Remove um grupo do usuário (admin)        |
+## Usuários
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/usuario?adminId=2` | Lista todos os usuários (apenas admin) |
+| GET | `/api/usuario/{id}?adminId=2` | Consulta usuário específico (admin) |
+| GET | `/api/usuario/email/{email}?adminId=2` | Consulta usuário por email (admin) |
+| POST | `/api/usuario?adminId=2` | Cria um novo usuário (admin) |
+| PUT | `/api/usuario/{id}?adminId=2` | Atualiza um usuário existente (admin) |
+| PUT | `/api/usuario/email?email={email}&adminId=2` | Atualiza um usuário pelo email (admin) |
+| DELETE | `/api/usuario?id=3&adminId=2` | Remove um usuário (admin) |
+| DELETE | `/api/usuario/email?email={email}&adminId=2` | Remove um usuário pelo email (admin) |
+| POST | `/api/usuario/{id}/adicionar-grupo?adminId=2` | Adiciona um grupo ao usuário (admin) |
+| DELETE | `/api/usuario/{id}/remover-grupo?adminId=2` | Remove um grupo do usuário (admin) |
