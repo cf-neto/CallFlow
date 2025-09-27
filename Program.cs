@@ -1,41 +1,39 @@
+using CallFlow.Models;
+using CallFlow.Data;
+using CallFlow.DTOs;
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
+
+// using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
-
-// Adicionar serviços CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        builder =>
-        {
-            builder
-                .WithOrigins("http://127.0.0.1:5500") // URL do seu front-end
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
-
 
 // Adiciona controllers
 builder.Services.AddControllers();
+builder.Services.AddOpenApi();
 
-// Adiciona Swagger (opcional, mas recomendado)
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Adicionar EF Corecom MySql
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(8, 0, 0))
+    );
+});
+
 
 var app = builder.Build();
 
-// Ativa Swagger
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapScalarApiReference();
+    app.MapOpenApi();
 }
 
-// Usar CORS
-app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
