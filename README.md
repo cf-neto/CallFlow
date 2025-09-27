@@ -24,23 +24,41 @@ CallFlow permite que você:
 | C#               | Linguagem principal do projeto                  |
 | ASP.NET Core     | Framework para criação de APIs REST             |
 | Visual Studio    | IDE recomendada para desenvolvimento           |
-| Swagger          | Testes e documentação de endpoints da API       |
+| Entity Framework Core          | Persistência e manipulação de dados no banco       |
+| DTOs          | Transferência segura de dados entre frontend/backend       |
+| AdminAuth          | Segurança básica de endpoints administrativos       |
+| Scalar          | Simplifica endpoints e documentação de APIs       |
 
 ---
 
 ## 📂 Estrutura do Projeto
 
 ```plaintext
-CallFlow/
-├── Controllers/
-│   ├── ChamadoController.cs   # Gerencia chamados (CRUD)
-│   └── UsuarioController.cs  # Gerencia usuários e grupos
-├── Models/
-│   ├── Chamado.cs             # Modelo de chamado
-│   └── Usuario.cs             # Modelo de usuário e enum Papel
-├── Program.cs                 # Configuração principal do ASP.NET Core
-├── CallFlow.csproj            # Projeto ASP.NET Core
-└── README.md                  # Documentação do projeto
+**CallFlow/**
+├── **Controllers/**
+│   ├── ChamadoController.cs
+│   └── UsuariosController.cs
+├── **Data/**
+│   └── AppDbContext.cs
+├── **DTOs/** (Data Transfer Objects)
+│   ├── AdminAuth - Cópia.cs
+│   ├── AdminAuth.cs
+│   ├── AdminUserRequest.cs
+│   └── CreateUserRequest.cs
+├── **Migrations/**
+├── **Models/**
+│   ├── Chamados.cs
+│   └── Usuario.cs
+├── **Properties/**
+└── **Arquivos na Raiz:**
+    ├── .gitignore
+    ├── appsettings.Development.json
+    ├── appsettings.json
+    ├── CallFlow.csproj (Arquivo de projeto C#)
+    ├── CallFlow.http (Arquivo para testar endpoints HTTP)
+    ├── Program.cs (Ponto de entrada da aplicação)
+    ├── README.md
+    └── CallFlow.sln (Arquivo de solução do Visual Studio)
 ```
 ---
 ## 🔗 Endpoints da API
@@ -61,13 +79,10 @@ CallFlow/
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| GET | `/api/usuario?adminId=2` | Lista todos os usuários (apenas admin) |
-| GET | `/api/usuario/{id}?adminId=2` | Consulta usuário específico (admin) |
-| GET | `/api/usuario/email/{email}?adminId=2` | Consulta usuário por email (admin) |
-| POST | `/api/usuario?adminId=2` | Cria um novo usuário (admin) |
+| GET | `/api/usuario?adminId={id}&senha={senha}` | Lista todos os usuários. Requer autenticação de administrador. |
+| GET | `/api/usuario/{id}?adminId={id}&senha={senha}` | Consulta um usuário específico pelo ID. Requer autenticação de administrador. |
+| GET | `	/api/usuario/email/{email}?adminId={id}&senha={senha}` | Consulta um usuário específico pelo Email. Requer autenticação de administrador.) |
+| POST | `/api/usuario?adminId=2` | Cria um novo usuário. Requer as credenciais do administrador (adminAuth) no corpo da requisição. |
 | PUT | `/api/usuario/{id}?adminId=2` | Atualiza um usuário existente (admin) |
-| PUT | `/api/usuario/email?email={email}&adminId=2` | Atualiza um usuário pelo email (admin) |
-| DELETE | `/api/usuario?id=3&adminId=2` | Remove um usuário (admin) |
-| DELETE | `/api/usuario/email?email={email}&adminId=2` | Remove um usuário pelo email (admin) |
-| POST | `/api/usuario/{id}/adicionar-grupo?adminId=2` | Adiciona um grupo ao usuário (admin) |
-| DELETE | `/api/usuario/{id}/remover-grupo?adminId=2` | Remove um grupo do usuário (admin) |
+| PUT | `/api/usuario/email?email={email}&adminId=2` | Atualiza um usuário existente pelo ID. Requer as credenciais do administrador (AdminAuth) e os novos dados no corpo. |
+
