@@ -7,17 +7,17 @@ namespace CallFlow.Models
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "O campo Nome é obrigatório")]
-        public string? Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O campo Email é obrigatório")]
-        public string? Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O campo Título é obrigatório")]
-        public string? Titulo { get; set; }
+        public string Titulo { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O campo Descrição é obrigatório")]
-        public string? Descricao { get; set; }
-        
+        public string Descricao { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "O campo Área é obrigatório")]
         public string Area { get; set; } = ""; // Apenas uma área por chamado
         
