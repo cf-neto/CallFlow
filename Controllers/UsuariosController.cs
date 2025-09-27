@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using CallFlow.Models;
+using CallFlow.Data;
+using CallFlow.DTOs;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -10,177 +12,145 @@ namespace CallFlow.Controllers
     [Route("api/[controller]")]
     public class UsuarioController : ControllerBase
     {
-        private static List<Usuario> Usuarios = new List<Usuario>
+        private readonly AppDbContext _context;
+        public UsuarioController(AppDbContext context)
         {
-            new Usuario { Id = 1, Nome = "Carlos Neto", Email = "carlosfdsn@empresa.com", Grupos = new List<string>{ "Desenvolvimento e Aplicações"}, Permissao = Papel.Usuario },
-            new Usuario { Id = 2, Nome = "Isabelle Cordeiro", Email = "isacordeiro@empresa.com", Grupos = new List<string>{"Service Desk"}, Permissao = Papel.Admin }
-        };
-
-        private static int _nextId = 3;
-
+            _context = context;
+        }
 
         // GET api/usuario
         [HttpGet]
-        public ActionResult<IEnumerable<Usuario>> GetUsuarios([FromQuery] int adminId)
+        public ActionResult<List<Usuario>> GetAllUsers([FromQuery] int adminId, [FromQuery] string senha)
         {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem listar usuários.");
+            var admin = _context.Usuarios.FirstOrDefault(u => u.Id == adminId && u.Senha == senha && u.Permissao == Papel.Admin);
+            if (admin == null) return Unauthorized("Apenas admins podem visualizar usuários");
 
-            return Ok(Usuarios);
+            var users = _context.Usuarios.ToList();
+            return Ok(users);
+        }
+
+        // GET api/usuario/email/
+        [HttpGet("email/{email}")]
+        public ActionResult<Usuario> GetUserByEmail(string email, [FromQuery] int adminId, [FromQuery] string senha)
+        {
+
+            // Verificar se admin existe
+            var admin = _context.Usuarios.FirstOrDefault(u => u.Id == adminId && u.Senha == senha && u.Permissao == Papel.Admin);
+
+            if (admin == null) return Unauthorized("Apenas admins podem visualizar usuários");
+
+            var user = _context.Usuarios.FirstOrDefault(u => u.Email == email);
+            if (user == null) return NotFound("Usuário não encontrado!");
+
+
+            return Ok(user);
         }
 
         // GET api/usuario/id
         [HttpGet("{id}")]
-        public ActionResult<Usuario> GetById(int id, [FromQuery] int adminId)
+        public ActionResult<Usuario> GetUserById(int id, [FromQuery] int adminId, [FromQuery] string senha)
         {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem visualizar usuários.");
 
-            var usuario = Usuarios.FirstOrDefault(u => u.Id == id);
-            if (usuario == null) return NotFound("Usuário não encontrado.");
+            // Verificar se admin existe
+            var admin = _context.Usuarios.FirstOrDefault(u => u.Id == adminId && u.Senha == senha && u.Permissao == Papel.Admin);
 
-            return Ok(usuario);
+            if (admin == null) return Unauthorized("Apenas admins podem visualizar usuários");
+
+            var user = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+            if (user == null) return NotFound("Usuário não encontrado!");
+
+
+            return Ok(user);
         }
-        
-        // GET api/usuari1#80FF00o/fernandaSeta
-        [HttpGet("email/{email}")]
-        public ActionResult<Usuario> GetUsuarioByEmail(string email, [FromQuery] int adminId)
-        {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem visualizar usuários.");
 
-            var usuario = Usuarios.FirstOrDefault(u => u.Email== email);
-            if (usuario == null) return NotFound("Usuário não encontrado.");
-
-            return Ok(usuario);
-        }
 
 
         // POST api/usuario
         [HttpPost]
-        public ActionResult<Usuario> Create([FromQuery] int adminId, [FromBody] Usuario novoUsuario)
+        public ActionResult<Usuario> CreateUser([FromBody] CreateUserRequest request)
         {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
+            // Config DTOs
+            var adminAuth = request.adminAuth;
+            var user = request.User;
+
+            if (user == null) return BadRequest("Ocorreu um erro na solicitação");
+
+            // Verifica se está nulo
+            if (adminAuth == null) return Unauthorized("Admin não Informado");
+
+            // Verificar se admin existe
+            var admin = _context.Usuarios.FirstOrDefault(u => u.Id == adminAuth.AdminId && u.Senha == adminAuth.Senha);
             if (admin == null) return Unauthorized("Apenas admins podem criar usuários");
 
-            novoUsuario.Id = _nextId++;
-            Usuarios.Add(novoUsuario);
+            _context.Usuarios.Add(user);
+            _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetById), new { id = novoUsuario.Id, adminId = adminId }, novoUsuario);
+            return CreatedAtAction(nameof(GetUserById), new {id = user.Id}, user);
         }
 
-        // PUT api/usuario/{id}
+
+        // PUT api/usuario/id
         [HttpPut("{id}")]
-        public ActionResult Update(int id, [FromQuery] int adminId, [FromBody] Usuario usuarioAtualizado)
+        public ActionResult<Usuario> EditUser(int id, [FromBody] AdminUserRequest request)
         {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem editar usuários");
+            // Config DTOs
+            var adminAuth = request.AdminAuth;
+            var userUpdate = request.User;
 
-            var usuario = Usuarios.FirstOrDefault(u => u.Id == id);
-            if (usuario == null) return NotFound("Usuário não encontrado");
+            // Verifica se está nulo
+            if (adminAuth == null) return Unauthorized("Admin não Informado");
 
-            usuario.Nome = usuarioAtualizado.Nome;
-            usuario.Email = usuarioAtualizado.Email;
-            usuario.Senha = usuarioAtualizado.Senha;
-            usuario.Grupos = usuarioAtualizado.Grupos;
-            usuario.Permissao = usuarioAtualizado.Permissao;
+            // Verifica se admin existe
+            var admin = _context.Usuarios.FirstOrDefault(u => u.Id == adminAuth.AdminId && u.Senha == adminAuth.Senha);
+            if (admin == null) return Unauthorized("Apenas admins podem criar usuários");
 
-            return NoContent();
-        }
-        
-        
-        // PUT api/usuario/{email}
-        [HttpPut("email")]
-        public ActionResult Update([FromQuery] string email, [FromQuery] int adminId, [FromBody] Usuario usuarioAtualizado)
-        {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem editar usuários");
+            // Verifica se o usuário existe
+            var user = _context.Usuarios.Find(id);
+            if (user == null) return NotFound("Usuário não encontrado!");
 
-            var usuario = Usuarios.FirstOrDefault(u => u.Email == email);
-            if (usuario == null) return NotFound("Usuário não encontrado");
+            user.Nome = userUpdate.Nome;
+            user.Email = userUpdate.Email;
+            user.Senha = userUpdate.Senha;
+            user.Grupos = userUpdate.Grupos;
+            user.Permissao = userUpdate.Permissao;
 
-            usuario.Nome = usuarioAtualizado.Nome;
-            usuario.Email = usuarioAtualizado.Email;
-            usuario.Senha = usuarioAtualizado.Senha;
-            usuario.Grupos = usuarioAtualizado.Grupos;
-            usuario.Permissao = usuarioAtualizado.Permissao;
+            _context.Usuarios.Update(user);
+            _context.SaveChanges();
 
             return NoContent();
         }
 
 
-        // DELETE api/usuario/{id}
-        [HttpDelete("{id}")]
-        public ActionResult Delete([FromRoute] int id, [FromQuery] int adminId)
+
+        // PUT api/usuario/email/
+        [HttpPut("email/{email}")]
+        public ActionResult<Usuario> EditUserByEmail(string email, [FromBody] AdminUserRequest request)
         {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem deletar usuários");
+            // Config DTOs
+            var adminAuth = request.AdminAuth;
+            var userUpdate = request.User;
 
-            var usuario = Usuarios.FirstOrDefault(u => u.Id == id);
-            if (usuario == null) return NotFound("Usuário não encontrado");
+            // Verifica se está nulo
+            if (adminAuth == null) return Unauthorized("Admin não Informado");
 
-            Usuarios.Remove(usuario);
+            // Verifica se admin existe
+            var admin = _context.Usuarios.FirstOrDefault(u => u.Id == adminAuth.AdminId && u.Senha == adminAuth.Senha);
+            if (admin == null) return Unauthorized("Apenas admins podem criar usuários");
 
-            return NoContent();
+            // Verifica se o usuário existe
+            var user = _context.Usuarios.FirstOrDefault(u => u.Email == email);
+            if (user == null) return NotFound("Usuário não encontrado!");
+
+            // Modificações
+            user.Nome = userUpdate.Nome;
+            user.Email = userUpdate.Email;
+            user.Senha = userUpdate.Senha;
+            user.Grupos = userUpdate.Grupos;
+            user.Permissao = userUpdate.Permissao;
+
+            _context.SaveChanges();
+
+            return Ok(user);
         }
-        
-        
-        // DELETE api/usuario/{email}
-        [HttpDelete("email")]
-        public ActionResult Delete([FromQuery] string email, [FromQuery] int adminId)
-        {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem deletar usuários");
-
-            var usuario = Usuarios.FirstOrDefault(u => u.Email== email);
-            if (usuario == null) return NotFound("Usuário não encontrado");
-
-            Usuarios.Remove(usuario);
-
-            return NoContent();
-        }
-
-
-        // POST api/usuario/{id}/adicionar-grupo?adminId=1
-        [HttpPost("{id}/adicionar-grupo")]
-        public ActionResult AdicionarGrupo(int id, [FromQuery] int adminId, [FromBody] string grupo)
-        {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem adicionar grupo para os usuários.");
-
-            var usuario = Usuarios.FirstOrDefault(u => u.Id == id);
-            if (usuario == null) return NotFound("Usuário não encontrado.");
-
-            if (usuario.Grupos == null) usuario.Grupos = new List<string>();
-
-            if (!usuario.Grupos.Contains(grupo))
-            {
-                usuario.Grupos.Add(grupo);
-            }
-
-            return Ok(usuario.Grupos);
-        }
-
-
-        // DELETE api/usuario/{id}/remover-grupo?adminId=1
-        [HttpDelete("{id}/remover-grupo")]
-        public ActionResult RemoverGrupo(int id, [FromQuery] int adminId, [FromBody] string grupo)
-        {
-            var admin = Usuarios.FirstOrDefault(u => u.Id == adminId && u.Permissao == Papel.Admin);
-            if (admin == null) return Unauthorized("Apenas admins podem remover grupo dos usuários.");
-
-            var usuario = Usuarios.FirstOrDefault(u => u.Id == id);
-            if (usuario == null) return NotFound("Usuário não encontrado.");
-
-            if (usuario.Grupos == null) usuario.Grupos = new List<string>();
-
-            if (!usuario.Grupos.Contains(grupo))
-            {
-                usuario.Grupos.Remove(grupo);
-            }
-
-            return Ok(usuario.Grupos);
-        }
-
     }
 }
